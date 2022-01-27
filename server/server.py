@@ -32,9 +32,9 @@ def home():
     return 'FLASK API'
 
 
-@app.route('/api/invoices', methods=['GET'])
+@app.route('/api/company', methods=['GET'])
 @cross_origin()
-def api_all():
+def get_company_name_by_invoice_id():
     if 'id' in request.args:
         id = int(request.args['id'])
     else:
@@ -50,6 +50,34 @@ def api_all():
     name = cur.execute(badr, [badr_id]).fetchall()[0][0]
 
     return jsonify(name)
+
+
+@app.route('/api/invoices', methods=['GET'])
+@cross_origin()
+def get_invoices():
+    con, cur = db.init_db()
+    blrc = 'select first 50 ID, MASKENKEY, LRECHNR, BLIEF_ID_LINKKEY, RECHDATUM, GESAMT, STATUS from BLRC'
+    blief = 'select BADR_ID_ADRNR from BLIEF where ID = ?'
+    badr = 'select NAME from BADR where ID = ?'
+
+    invoices = []
+
+    for row in cur.execute(blrc).fetchall():
+        badr_id = cur.execute(blief, [row[3]]).fetchall()[0][0]
+        name = cur.execute(badr, [badr_id]).fetchall()[0][0]
+        invoice = {
+            'ID': row[0],
+            'MASKENKEY': row[1],
+            'LRECHNR': row[2],
+            'COMPANY': name,
+            'RECHDATUM': row[4],
+            'GESAMT': row[5],
+            'STATUS': row[6]
+        }
+
+        invoices.append(invoice)
+    
+    return jsonify(invoices)
 
 
 app.run()

@@ -1,33 +1,25 @@
-import React, { useState } from 'react'
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Navbar } from './components/Navbar';
+import { Companies } from './pages/Companies';
+import { Dashboard } from './pages/Dashboard';
+import { Home } from './pages/Home';
+import Invoices from './pages/Invoices';
 
 export default function App() {
-  const [query, setQuery] = useState([])
-  const [data, setData] = useState([])
-
-  const submit = async e => {
-    e.preventDefault()
-    const url = `http://127.0.0.1:5000/api/invoices?id=${query}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    console.log(data)
-    setData(data)
-  }
-
   return (
-    <div className="h-screen flex flex-col items-center bg-gray-300 p-5">
-      <div className="w-2/5 h-4/5">
-      <iframe src="http://docs.google.com/gview?url=http://web.mit.edu/15.053/www/AMP-Chapter-11.pdf&embedded=true"
-        className="rounded-lg shadow-lg w-full h-full" frameBorder="0"></iframe>
-      <form onSubmit={submit} className="w-full">
-        <input
-          type="text"
-          className="rounded shadow-lg p-3 focus:outline-none my-3 w-full"
-          placeholder="Search invoicer..."
-          onChange={e => { setQuery(e.target.value) }}
-        />
-      </form>
-      <p style={{ height: '1em' }}>{data}</p>
+    <BrowserRouter>
+      <div className={`flex h-screen`}>
+        <Navbar />
+        <Routes>
+          <Route index element={<Home />} />
+          <Route path="/invoices" element={<Invoices />} />
+          <Route path="/companies" element={<Companies />}>
+            <Route path=":name" element={<Companies />} />
+          </Route>
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
       </div>
-    </div>
+    </BrowserRouter>
   );
 }
